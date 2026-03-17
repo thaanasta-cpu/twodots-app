@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>TwoDots v4.6</title>
+  <style>
+    :root{
+      --bg:#070811;
+      --bg2:#0b1020;
+      --card:rgba(18,22,38,.72);
+      --card-2:rgba(14,18,33,.86);
+      --border:rgba(255,255,255,.09);
+      --text:#f5f7ff;
+      --muted:#aeb3c8;
+      --muted-2:#8d92a8;
+      --purple:#806cff;
+      --orange:#ff9e75;
+      --green:#77e29f;
+      --shadow:0 16px 50px rgba(0,0,0,.35);
+      --radius-xl:32px;
+      --radius-lg:26px;
+      --radius-md:22px;
+      --radius-sm:18px;
+      --safe-top:max(18px, env(safe-area-inset-top));
+      --safe-bottom:max(18px, env(safe-area-inset-bottom));
+    }
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(55rem 45rem at 92% 4%, rgba(129,111,255,.34), transparent 45%),
+        radial-gradient(38rem 34rem at 4% 78%, rgba(255,123,55,.22), transparent 40%),
+        linear-gradient(180deg, #090c17 0%, #06070d 100%);
+      overflow:hidden;
+    }
+    .app{
+      height:100%;
+      display:flex;
+      flex-direction:column;
+      max-width:430px;
+      margin:0 auto;
+      position:relative;
+    }
+    .content{
+      flex:1;
+      overflow:auto;
+      padding:var(--safe-top) 18px 16px;
+      scroll-behavior:smooth;
+    }
+    .content::-webkit-scrollbar{width:0;height:0}
+    .screen{display:none; animation:fade .24s ease}
+    .screen.active{display:block}
+    @keyframes fade{from{opacity:.35; transform:translateY(8px)}to{opacity:1; transform:none}}
+
+    .card{
+      position:relative;
+      border:1px solid var(--border);
+      background:linear-gradient(180deg, rgba(27,31,49,.78), rgba(12,15,28,.9));
+      border-radius:var(--radius-lg);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+    .card::after{
+      content:"";
+      position:absolute; inset:auto -20% -25% auto;
+      width:52%; height:64%;
+      background:radial-gradient(circle, rgba(255,167,119,.12), transparent 62%);
+      pointer-events:none;
+    }
+    .hero{
+      padding:28px 22px 20px;
+      display:grid;
+      grid-template-columns:1.2fr .9fr;
+      gap:16px;
+      min-height:270px;
+    }
+    .eyebrow, .section-top .side-label{
+      letter-spacing:.18em;
+      text-transform:uppercase;
+      font-size:14px;
+      color:var(--muted);
+      font-weight:700;
+    }
+    .hero h1{
+      margin:14px 0 14px;
+      font-size:clamp(40px, 10.5vw, 64px);
+      line-height:.94;
+      letter-spacing:-.045em;
+      font-weight:800;
+    }
+    .hero .sub{
+      margin:0;
+      font-size:26px;
+      line-height:1.18;
+      color:var(--muted);
+      font-weight:650;
+      max-width:260px;
+    }
+    .hero-right{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      position:relative;
+    }
+    .dots{
+      position:relative;
+      width:164px;
+      height:112px;
+    }
+    .dot{
+      position:absolute;
+      top:12px;
+      width:96px;
+      height:96px;
+      border-radius:50%;
+      display:grid;
+      place-items:center;
+      font-size:28px;
+      font-weight:800;
+      color:white;
+      border:1px solid rgba(255,255,255,.18);
+      box-shadow:0 18px 40px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.18);
+    }
+    .dot.t{left:4px;background:radial-gradient(circle at 35% 30%, #988cff 0%, #735dff 62%, #614cf1 100%)}
+    .dot.j{right:2px;background:radial-gradient(circle at 35% 30%, #ffb38f 0%, #ff9d6f 58%, #eb7f52 100%)}
+
+    .status-row{
+      grid-column:1/-1;
+      display:grid;
+      grid-template-columns:1fr;
+      gap:12px;
+      margin-top:4px;
+    }
+    .pill{
+      min-height:62px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.09);
+      background:rgba(255,255,255,.045);
+      display:flex;
+      align-items:center;
+      padding:0 18px;
+      font-size:18px;
+      font-weight:700;
+      color:var(--text);
+      gap:14px;
+      min-width:0;
+    }
+    .pill .led{
+      width:18px; height:18px; border-radius:50%;
+      background:var(--green);
+      box-shadow:0 0 0 8px rgba(119,226,159,.08), 0 0 22px rgba(119,226,159,.45);
+      flex:0 0 auto;
+    }
+
+    .stats-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:16px;
+      margin:16px 0;
+    }
+    .stat-card{padding:22px 18px 20px; min-height:210px}
+    .stat-title{
+      margin:0;
+      font-size:22px;
+      line-height:1.1;
+      font-weight:800;
+      letter-spacing:-.02em;
+    }
+    .stat-value{
+      margin:28px 0 16px;
+      font-size:clamp(32px, 7.6vw, 58px);
+      line-height:.92;
+      font-weight:850;
+      letter-spacing:-.05em;
+      white-space:nowrap;
+    }
+    .stat-value.smaller{font-size:clamp(34px, 7vw, 52px)}
+    .stat-desc{
+      margin:0;
+      font-size:20px;
+      line-height:1.28;
+      color:var(--muted);
+      font-weight:600;
+    }
+
+    .signal-card{
+      padding:22px 20px;
+      margin:4px 0 18px;
+      background:
+        radial-gradient(circle at 84% 64%, rgba(255,255,255,.13), transparent 17%),
+        linear-gradient(145deg, rgba(86,72,161,.28), rgba(12,15,28,.92) 56%, rgba(255,141,96,.18));
+    }
+    .signal-card .headline{
+      margin:12px 0 8px;
+      font-size:clamp(24px, 7vw, 42px);
+      line-height:1.02;
+      font-weight:850;
+      letter-spacing:-.04em;
+    }
+    .signal-card .body{
+      margin:0;
+      font-size:18px;
+      line-height:1.35;
+      color:var(--muted);
+      font-weight:650;
+      max-width:90%;
+    }
+    .signal-card .timer{
+      margin-top:12px;
+      display:inline-flex;
+      align-items:center;
+      min-height:42px;
+      padding:0 14px;
+      border-radius:999px;
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.08);
+      color:var(--text);
+      font-weight:800;
+      font-size:15px;
+      letter-spacing:.01em;
+      white-space:nowrap;
+    }
+
+    .section-top{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap:16px;
+      margin:10px 4px 14px;
+    }
+    .section-title{
+      margin:0;
+      font-size:28px;
+      line-height:1;
+      font-weight:850;
+      letter-spacing:-.04em;
+    }
+    .side-note{
+      color:var(--muted);
+      font-size:18px;
+      font-weight:700;
+      white-space:nowrap;
+    }
+
+    .open-grid, .settings-list, .moment-list{display:grid; gap:16px}
+    .open-card, .moment-card, .setting-row, .check-card, .touch-panel{
+      border:1px solid rgba(255,255,255,.085);
+      background:linear-gradient(180deg, rgba(10,18,44,.82), rgba(8,13,28,.94));
+      border-radius:26px;
+      box-shadow:var(--shadow);
+    }
+    .open-card{
+      padding:22px 20px;
+      display:grid;
+      grid-template-columns:1fr auto;
+      gap:12px;
+      align-items:center;
+    }
+    .open-card h4,.moment-card h4,.setting-row h4{margin:0 0 8px; font-size:22px; line-height:1.06; font-weight:820; letter-spacing:-.03em}
+    .open-card p,.moment-card p,.setting-row p{margin:0; color:var(--muted); font-size:18px; line-height:1.28; font-weight:620}
+    .icon-bubble{
+      width:62px;height:62px;border-radius:50%; display:grid;place-items:center;
+      background:rgba(255,255,255,.06); font-size:30px; border:1px solid rgba(255,255,255,.06)
+    }
+
+    .check-hero{padding:18px 4px 12px}
+    .screen-title{
+      margin:0;
+      font-size:clamp(34px, 9vw, 56px);
+      line-height:.95;
+      letter-spacing:-.05em;
+      font-weight:850;
+    }
+    .screen-subhead{margin:10px 0 0; color:var(--muted); font-size:18px; line-height:1.35; font-weight:620}
+    .check-grid{
+      display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:18px;
+    }
+    .check-card{
+      padding:22px 18px;
+      min-height:178px;
+      cursor:pointer;
+      transition:transform .16s ease, border-color .16s ease, box-shadow .16s ease;
+    }
+    .check-card:active{transform:scale(.985)}
+    .check-card.selected{
+      border-color:rgba(132,110,255,.82);
+      box-shadow:0 0 0 3px rgba(132,110,255,.14), var(--shadow);
+    }
+    .emoji{font-size:36px; display:block; margin-bottom:16px}
+    .check-card h4{margin:0 0 10px; font-size:22px; line-height:1; font-weight:840; letter-spacing:-.03em}
+    .check-card p{margin:0; color:var(--muted); font-size:17px; line-height:1.22; font-weight:620}
+    .last-shared{
+      margin-top:18px;
+      padding:24px 20px;
+    }
+    .last-shared .section-tag{font-size:18px; font-weight:780; color:var(--text); opacity:.96}
+    .last-shared .value{margin:14px 0 10px; font-size:clamp(38px, 10vw, 62px); line-height:.9; letter-spacing:-.055em; font-weight:860}
+    .last-shared .meta{color:var(--muted); font-size:18px; font-weight:650}
+
+    .moment-card{
+      padding:20px;
+      display:grid;
+      grid-template-columns:96px 1fr;
+      gap:16px;
+      align-items:start;
+    }
+    .thumb{
+      width:96px; height:96px; border-radius:22px; border:1px solid rgba(255,255,255,.08);
+      background:linear-gradient(180deg, rgba(26,35,67,.9), rgba(10,15,33,.95));
+      display:grid; place-items:center; font-size:38px;
+    }
+    .moment-meta{font-size:17px; color:var(--muted); font-weight:700; margin-bottom:10px}
+    .moment-copy{margin:0; font-size:22px; line-height:1.3; font-weight:640; color:var(--text)}
+
+    .touch-wrap{
+      padding:8px 0 14px;
+      text-align:center;
+    }
+    .touch-wrap .top-label{margin-top:10px}
+    .touch-wrap h2{margin:16px 0 12px; font-size:clamp(42px, 11vw, 68px); line-height:.94; font-weight:860; letter-spacing:-.055em}
+    .touch-wrap p{margin:0 auto; max-width:92%; font-size:18px; line-height:1.4; color:var(--muted); font-weight:620}
+    .touch-orb{
+      margin:28px auto 18px;
+      width:min(74vw, 286px);
+      height:min(74vw, 286px);
+      border-radius:50%;
+      border:2px solid rgba(255,255,255,.3);
+      background:
+        radial-gradient(circle at 35% 28%, rgba(255,220,185,.36), transparent 22%),
+        linear-gradient(160deg, #ff9e75 0%, #ff8e75 24%, #bb90ff 72%, #7d6cff 100%);
+      box-shadow:0 0 0 24px rgba(255,255,255,.035), 0 0 0 52px rgba(255,255,255,.02), 0 30px 70px rgba(0,0,0,.38);
+      display:grid; place-items:center;
+      font-size:clamp(22px, 6.4vw, 34px);
+      font-weight:840;
+      letter-spacing:-.03em;
+      cursor:pointer;
+      user-select:none;
+      transition:transform .15s ease, box-shadow .2s ease;
+    }
+    .touch-orb:active{transform:scale(.985)}
+    .touch-orb.pulse{animation:pulse .7s ease}
+    @keyframes pulse{
+      0%{transform:scale(1)}
+      25%{transform:scale(.97)}
+      60%{transform:scale(1.03)}
+      100%{transform:scale(1)}
+    }
+    .touch-panel{padding:20px; margin-top:20px}
+    .touch-panel h4{margin:0 0 8px; font-size:22px; font-weight:820; letter-spacing:-.03em}
+    .touch-panel p{margin:0; color:var(--muted); font-size:18px; line-height:1.34; font-weight:630}
+    .touch-panel .timer{margin-top:14px}
+
+    .setting-row{
+      padding:20px;
+      display:grid;
+      grid-template-columns:auto 1fr auto;
+      gap:16px;
+      align-items:center;
+    }
+    .setting-icon{
+      width:54px;height:54px;border-radius:18px;display:grid;place-items:center;
+      background:rgba(255,255,255,.05); font-size:29px
+    }
+    .setting-row .right{font-size:18px; color:var(--muted); font-weight:760}
+
+    .nav-shell{
+      padding:10px 18px calc(var(--safe-bottom) + 6px);
+      background:linear-gradient(180deg, rgba(7,8,17,0), rgba(7,8,17,.82) 24%, rgba(7,8,17,.98) 56%);
+    }
+    .tabbar{
+      display:grid;
+      grid-template-columns:repeat(5,1fr);
+      gap:6px;
+      padding:8px;
+      border-radius:28px;
+      border:1px solid rgba(255,255,255,.09);
+      background:linear-gradient(180deg, rgba(11,16,34,.94), rgba(7,10,21,.98));
+      box-shadow:0 16px 40px rgba(0,0,0,.35);
+    }
+    .tab{
+      min-height:88px;
+      border:none;
+      background:transparent;
+      color:var(--muted);
+      border-radius:22px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      flex-direction:column;
+      gap:8px;
+      font:inherit;
+      font-size:17px;
+      font-weight:800;
+      cursor:pointer;
+      padding:8px 4px;
+    }
+    .tab .ico{font-size:20px; line-height:1; opacity:.95}
+    .tab.active{
+      color:var(--text);
+      background:linear-gradient(180deg, rgba(255,255,255,.1), rgba(255,255,255,.055));
+    }
+    .tab:active{transform:scale(.985)}
+
+    @media (max-width:380px){
+      .hero{grid-template-columns:1fr; min-height:auto}
+      .hero-right{justify-content:flex-start}
+      .dots{margin-top:2px}
+      .stats-grid,.check-grid{gap:14px}
+      .stat-card{min-height:196px}
+      .moment-card{grid-template-columns:82px 1fr}
+      .thumb{width:82px; height:82px}
+      .tab{font-size:15px; min-height:82px}
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <main class="content" id="content">
+      <section class="screen active" id="screen-home">
+        <div class="card hero">
+          <div>
+            <div class="eyebrow">Connected Space</div>
+            <h1>Thanos &amp;<br>Jovie</h1>
+            <p class="sub">Athens → Dubai · Still Dreaming</p>
+          </div>
+          <div class="hero-right">
+            <div class="dots" aria-hidden="true">
+              <div class="dot t">T</div>
+              <div class="dot j">J</div>
+            </div>
+          </div>
+          <div class="status-row">
+            <div class="pill"><span class="led"></span><span>Bond active</span></div>
+          </div>
+        </div>
+
+        <div class="stats-grid">
+          <div class="card stat-card">
+            <h3 class="stat-title">Distance</h3>
+            <div class="stat-value smaller">3,269 km</div>
+            <p class="stat-desc">Far in miles, close in meaning.</p>
+          </div>
+          <div class="card stat-card">
+            <h3 class="stat-title">Time Difference</h3>
+            <div class="stat-value">+2h</div>
+            <p class="stat-desc">Dubai is two hours ahead of Athens.</p>
+          </div>
+          <div class="card stat-card">
+            <h3 class="stat-title">Latest Feeling</h3>
+            <div class="stat-value smaller" id="homeFeeling">Happy</div>
+            <p class="stat-desc">Shared today at <span id="homeFeelingTime">13:58</span></p>
+          </div>
+          <div class="card stat-card">
+            <h3 class="stat-title">Dream Status</h3>
+            <div class="stat-value smaller">Open</div>
+            <p class="stat-desc">Next reunion date is not locked yet.</p>
+          </div>
+        </div>
+
+        <div class="card signal-card">
+          <div class="eyebrow">Quiet Signal</div>
+          <div class="headline" id="signalHeadline">No touch has been sent today.</div>
+          <p class="body" id="signalBody">A quiet pulse appears here the moment one of you reaches for the other.</p>
+          <div class="timer" id="signalTimer">Last touch · waiting</div>
+        </div>
+
+        <div class="section-top">
+          <h3 class="section-title">Open When</h3>
+          <div class="side-note">3 waiting</div>
+        </div>
+        <div class="open-grid">
+          <div class="open-card">
+            <div>
+              <h4>Open when you miss me</h4>
+              <p>Locked letter · emotional support</p>
+            </div>
+            <div class="icon-bubble">🔒</div>
+          </div>
+          <div class="open-card">
+            <div>
+              <h4>Open when you can’t sleep</h4>
+              <p>Locked letter · late night comfort</p>
+            </div>
+            <div class="icon-bubble">🌙</div>
+          </div>
+          <div class="open-card">
+            <div>
+              <h4>Open when the day feels heavy</h4>
+              <p>Locked letter · quiet reassurance</p>
+            </div>
+            <div class="icon-bubble">☁️</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="screen" id="screen-checkin">
+        <div class="check-hero">
+          <div class="section-top" style="margin:0 0 16px">
+            <h2 class="screen-title">Daily Check-In</h2>
+            <div class="side-note">Today</div>
+          </div>
+          <p class="screen-subhead">No pressure. Just choose the closest feeling and send a quiet update.</p>
+        </div>
+        <div class="check-grid" id="checkGrid">
+          <button class="check-card selected" data-feeling="Happy" data-copy="Light, warm, and open.">
+            <span class="emoji">❤️</span>
+            <h4>Happy</h4>
+            <p>Light, warm, and open.</p>
+          </button>
+          <button class="check-card" data-feeling="Tired" data-copy="Low energy, need softness.">
+            <span class="emoji">🥱</span>
+            <h4>Tired</h4>
+            <p>Low energy, need softness.</p>
+          </button>
+          <button class="check-card" data-feeling="Stressed" data-copy="Heavy head, busy heart.">
+            <span class="emoji">🌀</span>
+            <h4>Stressed</h4>
+            <p>Heavy head, busy heart.</p>
+          </button>
+          <button class="check-card" data-feeling="Missing You" data-copy="Present, but not enough.">
+            <span class="emoji">🥺</span>
+            <h4>Missing You</h4>
+            <p>Present, but not enough.</p>
+          </button>
+        </div>
+        <div class="card last-shared">
+          <div class="section-tag">Last shared</div>
+          <div class="value" id="lastSharedFeeling">Happy</div>
+          <div class="meta">Seen by Jovie · <span id="lastSharedTime">13:58</span></div>
+        </div>
+      </section>
+
+      <section class="screen" id="screen-moments">
+        <div class="section-top" style="margin-top:8px">
+          <h2 class="screen-title" style="font-size:52px">Our Moments</h2>
+          <div class="side-note">Private timeline</div>
+        </div>
+        <div class="moment-list">
+          <div class="moment-card">
+            <div class="thumb">🌆</div>
+            <div>
+              <div class="moment-meta">Today · 18:47 · Dubai</div>
+              <p class="moment-copy">The sky turned gold for a minute and it instantly felt like something I should have shared with you.</p>
+            </div>
+          </div>
+          <div class="moment-card">
+            <div class="thumb">☕</div>
+            <div>
+              <div class="moment-meta">Yesterday · 11:10 · Athens</div>
+              <p class="moment-copy">Morning coffee, same usual place, same exact thought: this would be better with you here.</p>
+            </div>
+          </div>
+          <div class="moment-card">
+            <div class="thumb">🎧</div>
+            <div>
+              <div class="moment-meta">2 days ago · Voice note saved</div>
+              <p class="moment-copy">A soft goodnight, replayed more than once. Some things carry more than sound.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="screen" id="screen-touch">
+        <div class="touch-wrap">
+          <div class="eyebrow top-label">Instant Presence</div>
+          <h2>Send a touch</h2>
+          <p>A silent signal for the moments when words feel too heavy or too small.</p>
+          <div class="touch-orb" id="touchButton">Send Touch</div>
+          <div class="card touch-panel">
+            <h4 id="touchPanelTitle">No pulse in motion</h4>
+            <p id="touchPanelBody">When sent, it appears as a quiet pulse on the other side.</p>
+            <div class="timer" id="touchTimer">Last touch · waiting</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="screen" id="screen-space">
+        <div class="section-top" style="margin-top:8px">
+          <h2 class="screen-title" style="font-size:52px">Space Settings</h2>
+          <div class="side-note">Balanced theme</div>
+        </div>
+        <div class="settings-list">
+          <div class="setting-row">
+            <div class="setting-icon">👤</div>
+            <div>
+              <h4>Names</h4>
+              <p>Thanos &amp; Jovie</p>
+            </div>
+            <div class="right">Edit</div>
+          </div>
+          <div class="setting-row">
+            <div class="setting-icon">📍</div>
+            <div>
+              <h4>Cities</h4>
+              <p>Athens → Dubai</p>
+            </div>
+            <div class="right">Live</div>
+          </div>
+          <div class="setting-row">
+            <div class="setting-icon">💭</div>
+            <div>
+              <h4>Dream Status</h4>
+              <p>Still Dreaming</p>
+            </div>
+            <div class="right">Open</div>
+          </div>
+          <div class="setting-row">
+            <div class="setting-icon">🎨</div>
+            <div>
+              <h4>Visual Mood</h4>
+              <p>Dark · quiet · intimate</p>
+            </div>
+            <div class="right">v4.6</div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <div class="nav-shell">
+      <nav class="tabbar" aria-label="Bottom navigation">
+        <button class="tab active" data-screen="home"><span class="ico">⌂</span><span>Home</span></button>
+        <button class="tab" data-screen="checkin"><span class="ico">♡</span><span>Check-In</span></button>
+        <button class="tab" data-screen="moments"><span class="ico">▥</span><span>Moments</span></button>
+        <button class="tab" data-screen="touch"><span class="ico">◉</span><span>Touch</span></button>
+        <button class="tab" data-screen="space"><span class="ico">⚙</span><span>Space</span></button>
+      </nav>
+    </div>
+  </div>
+
+  <script>
+    const tabs = document.querySelectorAll('.tab');
+    const screens = document.querySelectorAll('.screen');
+    const content = document.getElementById('content');
+    const touchButton = document.getElementById('touchButton');
+    const signalTimer = document.getElementById('signalTimer');
+    const touchTimer = document.getElementById('touchTimer');
+    const signalHeadline = document.getElementById('signalHeadline');
+    const signalBody = document.getElementById('signalBody');
+    const touchPanelTitle = document.getElementById('touchPanelTitle');
+    const touchPanelBody = document.getElementById('touchPanelBody');
+
+    const homeFeeling = document.getElementById('homeFeeling');
+    const homeFeelingTime = document.getElementById('homeFeelingTime');
+    const lastSharedFeeling = document.getElementById('lastSharedFeeling');
+    const lastSharedTime = document.getElementById('lastSharedTime');
+
+    const STORAGE_KEYS = {
+      touchTs: 'twodots_touch_ts_v46',
+      feeling: 'twodots_feeling_v46',
+      feelingTime: 'twodots_feeling_time_v46'
+    };
+
+    function nowLabel() {
+      const d = new Date();
+      return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+    }
+
+    function loadFeeling() {
+      const feeling = localStorage.getItem(STORAGE_KEYS.feeling) || 'Happy';
+      const time = localStorage.getItem(STORAGE_KEYS.feelingTime) || '13:58';
+      homeFeeling.textContent = feeling;
+      homeFeelingTime.textContent = time;
+      lastSharedFeeling.textContent = feeling;
+      lastSharedTime.textContent = time;
+      document.querySelectorAll('.check-card').forEach(card => {
+        card.classList.toggle('selected', card.dataset.feeling === feeling);
+      });
+    }
+
+    function saveFeeling(feeling) {
+      const time = nowLabel();
+      localStorage.setItem(STORAGE_KEYS.feeling, feeling);
+      localStorage.setItem(STORAGE_KEYS.feelingTime, time);
+      loadFeeling();
+    }
+
+    function formatElapsed(diffSec) {
+      const days = Math.floor(diffSec / 86400);
+      const hours = Math.floor((diffSec % 86400) / 3600);
+      const mins = Math.floor((diffSec % 3600) / 60);
+      const secs = diffSec % 60;
+
+      const hh = String(hours).padStart(2, '0');
+      const mm = String(mins).padStart(2, '0');
+      const ss = String(secs).padStart(2, '0');
+
+      if (days === 0) return `${hh}:${mm}:${ss} ago`;
+      if (days <= 3) return `${days}d ${hh}:${mm} ago`;
+      return `${days}d ago`;
+    }
+
+    function renderTouchState() {
+      const raw = localStorage.getItem(STORAGE_KEYS.touchTs);
+      if (!raw) {
+        signalTimer.textContent = 'Last touch · waiting';
+        touchTimer.textContent = 'Last touch · waiting';
+        signalHeadline.textContent = 'No touch has been sent today.';
+        signalBody.textContent = 'A quiet pulse appears here the moment one of you reaches for the other.';
+        touchPanelTitle.textContent = 'No pulse in motion';
+        touchPanelBody.textContent = 'When sent, it appears as a quiet pulse on the other side.';
+        return;
+      }
+      const diffSec = Math.max(0, Math.floor((Date.now() - Number(raw)) / 1000));
+      const formatted = formatElapsed(diffSec);
+      const label = `Last touch · ${formatted}`;
+      signalTimer.textContent = label;
+      touchTimer.textContent = label;
+      signalHeadline.textContent = diffSec < 60 ? 'A touch was just sent.' : 'A touch is still in motion.';
+      signalBody.textContent = diffSec < 60 ? 'A quiet pulse just crossed the distance.' : 'The signal is still there — soft, small, and real.';
+      touchPanelTitle.textContent = diffSec < 60 ? 'Touch sent' : 'Touch remembered';
+      touchPanelBody.textContent = diffSec < 60 ? 'The pulse was delivered just now.' : 'The last pulse is still visible across your shared space.';
+    }
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        const name = tab.dataset.screen;
+        tabs.forEach(t => t.classList.toggle('active', t === tab));
+        screens.forEach(screen => screen.classList.toggle('active', screen.id === `screen-${name}`));
+        content.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    });
+
+    document.querySelectorAll('.check-card').forEach(card => {
+      card.addEventListener('click', () => saveFeeling(card.dataset.feeling));
+    });
+
+    touchButton.addEventListener('click', () => {
+      localStorage.setItem(STORAGE_KEYS.touchTs, String(Date.now()));
+      touchButton.classList.remove('pulse');
+      void touchButton.offsetWidth;
+      touchButton.classList.add('pulse');
+      renderTouchState();
+    });
+
+    loadFeeling();
+    renderTouchState();
+    setInterval(renderTouchState, 1000);
+  </script>
+</body>
+</html>
